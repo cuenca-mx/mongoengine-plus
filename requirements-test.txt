@@ -5,3 +5,4 @@ isort==5.8.*
 flake8==3.9.*
 mypy==0.812
 mongomock==3.22.*
+pytest-freezegun==0.4.*

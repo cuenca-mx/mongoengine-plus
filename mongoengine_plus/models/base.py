@@ -1,4 +1,4 @@
-from typing import ClassVar, Dict, List
+from typing import ClassVar, Dict
 
 from mongoengine_plus.types.helpers import mongo_to_dict
 

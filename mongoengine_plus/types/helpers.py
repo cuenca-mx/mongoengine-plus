@@ -1,5 +1,7 @@
-from typing import Union
+# mypy: ignore-errors
+from enum import Enum
 
+from bson import DBRef
 from mongoengine import (
     BooleanField,
     ComplexDateTimeField,
@@ -10,24 +12,29 @@ from mongoengine import (
     EmbeddedDocument,
     EmbeddedDocumentField,
     FloatField,
+    GenericLazyReferenceField,
     IntField,
+    LazyReferenceField,
     ListField,
 )
 
 from .enum_field import EnumField
 
 
-def mongo_to_dict(obj, exclude_fields: list = None) -> Union[dict, None]:
+def mongo_to_dict(obj, exclude_fields: list = None) -> dict:
     """
     from: https://gist.github.com/jason-w/4969476
     """
     return_data = {}
 
     if obj is None:
-        return None
+        return return_data
 
     if isinstance(obj, Document):
         return_data['id'] = str(obj.id)
+
+    if exclude_fields is None:
+        exclude_fields = []
 
     for field_name in obj._fields:
 
@@ -36,10 +43,15 @@ def mongo_to_dict(obj, exclude_fields: list = None) -> Union[dict, None]:
 
         if field_name == 'id':
             continue
-
         data = obj._data[field_name]
-
         if isinstance(obj._fields[field_name], ListField):
+            field_name = (
+                f'{field_name}_uris'
+                if isinstance(
+                    obj._fields[field_name].field, LazyReferenceField
+                )
+                else field_name
+            )
             return_data[field_name] = list_field_to_dict(data)
         elif isinstance(obj._fields[field_name], EmbeddedDocumentField):
             return_data[field_name] = mongo_to_dict(data, [])
@@ -47,6 +59,16 @@ def mongo_to_dict(obj, exclude_fields: list = None) -> Union[dict, None]:
             return_data[field_name] = data
         elif isinstance(obj._fields[field_name], EnumField):
             return_data[field_name] = data.value if data else None
+        elif isinstance(obj._fields[field_name], LazyReferenceField):
+            return_data[f'{field_name}_uri'] = (
+                f'/{data._DBRef__collection}/{data.id}' if data else None
+            )
+        elif isinstance(obj._fields[field_name], GenericLazyReferenceField):
+            return_data[f'{field_name}_uri'] = (
+                f'/{data["_ref"]._DBRef__collection}/{data["_ref"].id}'
+                if data
+                else None
+            )
         else:
             return_data[field_name] = mongo_to_python_type(
                 obj._fields[field_name], data
@@ -61,6 +83,10 @@ def list_field_to_dict(list_field: list) -> list:
     for item in list_field:
         if isinstance(item, EmbeddedDocument):
             return_data.append(mongo_to_dict(item))
+        elif isinstance(item, Enum):
+            return_data.append(item.value)
+        elif isinstance(item, DBRef):  # pragma: no cover
+            return_data.append(f'/{item._DBRef__collection}/{item.id}')
         else:
             return_data.append(mongo_to_python_type(item, item))
 
@@ -76,7 +102,7 @@ def mongo_to_python_type(field, data):
         rv = data.isoformat()
     elif field_type is ComplexDateTimeField:
         rv = field.to_python(data).isoformat()
-    elif rv is FloatField:
+    elif rv is FloatField:  # pragma: no cover
         rv = float(data)
     elif field_type is IntField:
         rv = int(data)
