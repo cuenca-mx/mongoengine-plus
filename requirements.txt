@@ -1,0 +1,2 @@
+mongoengine==0.23.0
+dnspython==2.1.0
