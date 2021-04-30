@@ -22,7 +22,7 @@ setup(
     url='https://github.com/cuenca-mx/mongoengine-plus',
     packages=find_packages(),
     include_package_data=True,
-    package_data=dict(agave=['py.typed']),
+    package_data=dict(mongoengine_plus=['py.typed']),
     python_requires='>=3.8',
     install_requires=[
         'mongoengine>=0.20.0',
