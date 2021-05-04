@@ -12,6 +12,8 @@ async def test_save():
     assert city.id is not None
     assert city.name == 'Tuxtla Gutierrez'
     await city.async_delete()
+    with pytest.raises(DoesNotExist):
+        await City.objects.async_get(id=city.id)
 
 
 @pytest.mark.asyncio
@@ -26,13 +28,3 @@ async def test_reload():
     assert same_city.id == city.id
     assert same_city.name == city.name
     await city.async_delete()
-
-
-@pytest.mark.asyncio
-async def test_delete():
-    city = City(name='Tuxtla Gutierrez')
-    await city.async_save()
-    assert city.id is not None
-    await city.async_delete()
-    with pytest.raises(DoesNotExist):
-        await City.objects.async_get(id=city.id)
