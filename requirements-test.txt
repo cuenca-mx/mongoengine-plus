@@ -1,8 +1,9 @@
-pytest==6.2.*
-pytest-cov==2.11.*
 black==20.8b1
-isort==5.8.*
 flake8==3.9.*
+isort==5.8.*
 mypy==0.812
 mongomock==3.22.*
+pytest==6.2.*
+pytest-asyncio==0.15.1
+pytest-cov==2.11.*
 pytest-freezegun==0.4.*
