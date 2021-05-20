@@ -4,9 +4,6 @@ from .helpers import mongo_to_dict
 
 
 class BaseModel:
-    meta = {
-        'abstract': True,
-    }
     _excluded: ClassVar = []
     _hidden: ClassVar = []
 

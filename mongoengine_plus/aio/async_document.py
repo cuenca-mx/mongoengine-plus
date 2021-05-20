@@ -6,7 +6,7 @@ from .utils import create_awaitable
 
 class AsyncDocument(Document):
     meta = dict(
-        allow_inheritance=True,
+        abstract=True,
         queryset_class=AsyncQuerySet,
     )
 
