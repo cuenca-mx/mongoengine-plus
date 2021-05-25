@@ -31,3 +31,12 @@ async def test_to_list(cities):
 async def test_first(cities):
     first_city = await City.objects(state='Tabasco').async_first()
     assert first_city.state == 'Tabasco'
+
+
+@pytest.mark.asyncio
+async def test_update(cities):
+    await City.objects(name='San Cristobal').async_update(
+        set__name='San Cristobal de las Casas'
+    )
+    sancris = await City.objects.async_get(name__contains='San Cristobal')
+    assert sancris.name == 'San Cristobal de las Casas'
