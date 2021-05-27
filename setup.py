@@ -27,6 +27,7 @@ setup(
     install_requires=[
         'mongoengine>=0.20.0',
         'dnspython>=2.0.0,<2.2.0',
+        'blinker>=1.4,<2.0',
     ],
     classifiers=[
         'Programming Language :: Python :: 3.8',
