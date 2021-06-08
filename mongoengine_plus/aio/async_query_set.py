@@ -4,6 +4,9 @@ from .utils import create_awaitable
 
 
 class AsyncQuerySet(QuerySet):
+    async def async_first(self):
+        return await create_awaitable(self.first)
+
     async def async_get(self, *q_objs, **query):
         return await create_awaitable(self.get, *q_objs, **query)
 
@@ -12,3 +15,6 @@ class AsyncQuerySet(QuerySet):
 
     async def async_to_list(self):
         return await create_awaitable(list, self)
+
+    async def async_update(self, *u_objs, **query):
+        return await create_awaitable(self.update, *u_objs, **query)
