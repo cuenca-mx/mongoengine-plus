@@ -1,6 +1,6 @@
 black==21.5b1
 flake8==3.9.*
-isort==5.8.*
+isort==5.10.*
 mypy==0.812
 mongomock==3.22.*
 pytest==6.2.*
