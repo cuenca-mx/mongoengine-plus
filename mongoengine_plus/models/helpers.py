@@ -64,6 +64,8 @@ def mongo_to_dict(obj, exclude_fields: list = None) -> dict:
             return_data[field_name] = list_field_to_dict(data)
         elif isinstance(obj._fields[field_name], EmbeddedDocumentField):
             return_data[field_name] = mongo_to_dict(data, [])
+        elif isinstance(obj._fields[field_name], EmbeddedDocument):
+            return_data[field_name] = mongo_to_dict(data, [])
         elif isinstance(obj._fields[field_name], DictField):
             return_data[field_name] = data
         elif isinstance(obj._fields[field_name], EnumField):
