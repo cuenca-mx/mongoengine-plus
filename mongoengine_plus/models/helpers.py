@@ -45,6 +45,9 @@ def mongo_to_dict(obj, exclude_fields: list = None) -> dict:
     if exclude_fields is None:
         exclude_fields = []
 
+    # remove _cls from heritage embedded fields
+
+    exclude_fields.append('_cls')
     for field_name in obj._fields:
 
         if field_name in exclude_fields:
