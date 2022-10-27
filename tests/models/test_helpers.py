@@ -31,7 +31,12 @@ class EnumType(Enum):
 
 
 class Embedded(EmbeddedDocument):
+    meta = {'allow_inheritance': True}
     name = StringField()
+
+
+class HeritageEmbedded(Embedded):
+    lastname = StringField()
 
 
 class TestModel(Document):
@@ -50,6 +55,7 @@ class TestModel(Document):
     enum_list_field = ListField(EnumField(EnumType), default=[EnumType.member])
     embedded_list_field = ListField(EmbeddedDocumentField(Embedded))
     embedded_field = EmbeddedDocumentField(Embedded)
+    heritage_field = EmbeddedDocumentField(HeritageEmbedded)
     lazzy_field = LazyReferenceField(Reference)
     lazzy_list_field = ListField(LazyReferenceField(Reference))
     generic_lazzy_field = GenericLazyReferenceField()
@@ -61,7 +67,10 @@ def test_mongo_to_dict():
     reference = Reference()
     reference.save()
     model = TestModel(
-        embedded_list_field=[Embedded(name='')], lazzy_list_field=[reference]
+        embedded_list_field=[Embedded(name='')],
+        lazzy_list_field=[reference],
+        embedded_field=Embedded(name='Peter'),
+        heritage_field=HeritageEmbedded(name='some', lastname='other'),
     )
     model.save()
     model_dict = mongo_to_dict(model, exclude_fields=['str_field'])
@@ -78,7 +87,11 @@ def test_mongo_to_dict():
     assert model_dict['list_field'] == ['42']
     assert model_dict['enum_list_field'] == ['name']
     assert model_dict['embedded_list_field'] == [{'name': ''}]
-    assert model_dict['embedded_field'] == {}
+    assert model_dict['embedded_field'] == {'name': 'Peter'}
     assert model_dict['lazzy_field_uri'] is None
     assert model_dict['generic_lazzy_field_uri'] is None
     assert model_dict['lazzy_list_field_uris'] == ["Reference object"]
+    assert model_dict['heritage_field'] == {
+        'name': 'some',
+        'lastname': 'other',
+    }
