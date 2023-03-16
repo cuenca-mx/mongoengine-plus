@@ -40,3 +40,20 @@ async def test_update(cities):
     )
     sancris = await City.objects.async_get(name__contains='San Cristobal')
     assert sancris.name == 'San Cristobal de las Casas'
+
+
+@pytest.mark.asyncio
+async def test_bulk_insert():
+    cities = [
+        City(name='Villahermosa', state='Tabasco'),
+        City(name='Ciudad de México', state='CDMX'),
+        City(name='Monterrey', state='Nuevo León'),
+        City(name='San Cristobal', state='Chiapas'),
+        City(name='Tuxtla Gutiérrez', state='Chiapas'),
+    ]
+    cities.sort(key=lambda c: c.name)
+    await City.objects.async_insert(cities, load_bulk=False)
+
+    cities_db = list(await City.objects.order_by('+name').async_to_list())
+    assert len(cities_db) == len(cities)
+    assert all(a.name == b.name for a, b in zip(cities, cities_db))

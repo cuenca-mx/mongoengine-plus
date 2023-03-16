@@ -18,3 +18,14 @@ class AsyncQuerySet(QuerySet):
 
     async def async_update(self, *u_objs, **query):
         return await create_awaitable(self.update, *u_objs, **query)
+
+    async def async_insert(
+        self,
+        doc_or_docs,
+        load_bulk=True,
+        write_concern=None,
+        signal_kwargs=None,
+    ):
+        return await create_awaitable(
+            self.insert, doc_or_docs, load_bulk, write_concern, signal_kwargs
+        )
