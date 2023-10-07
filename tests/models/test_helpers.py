@@ -35,7 +35,6 @@ class IntEnum(int, Enum):
     invalid = 1
 
 
-
 class Embedded(EmbeddedDocument):
     meta = {'allow_inheritance': True}
     name = StringField()
