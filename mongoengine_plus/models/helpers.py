@@ -70,7 +70,7 @@ def mongo_to_dict(obj, exclude_fields: list = None) -> dict:
         elif isinstance(obj._fields[field_name], DictField):
             return_data[field_name] = data
         elif isinstance(obj._fields[field_name], EnumField):
-            return_data[field_name] = data.value if data else None
+            return_data[field_name] = data.value if data is not None else None
         elif isinstance(obj._fields[field_name], LazyReferenceField):
             return_data[f'{field_name}_uri'] = (
                 f'/{data._DBRef__collection}/{data.id}' if data else None
