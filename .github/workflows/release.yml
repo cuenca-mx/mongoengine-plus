@@ -5,14 +5,17 @@ on:
     types: [published]
 
 jobs:
-  pypi-publish:
-    name: Upload release to PyPI
+  publish-pypi:
     runs-on: ubuntu-latest
-    environment:
-      name: pypi
-      url: https://pypi.org/p/<your-pypi-project-name>
-    permissions:
-      id-token: write
     steps:
-    - name: Publish package distributions to PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
+      - uses: actions/checkout@master
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2.2.2
+        with:
+          python-version: 3.8
+      - name: Install dependencies
+        run: pip install -qU setuptools wheel twine
+      - name: Generating distribution archives
+        run: python setup.py sdist bdist_wheel
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
