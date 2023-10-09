@@ -30,6 +30,11 @@ class EnumType(Enum):
     member = 'name'
 
 
+class IntEnum(int, Enum):
+    exito = 0
+    invalid = 1
+
+
 class Embedded(EmbeddedDocument):
     meta = {'allow_inheritance': True}
     name = StringField()
@@ -59,6 +64,7 @@ class TestModel(Document):
     lazzy_field = LazyReferenceField(Reference)
     lazzy_list_field = ListField(LazyReferenceField(Reference))
     generic_lazzy_field = GenericLazyReferenceField()
+    code = EnumField(IntEnum)
 
     __test__ = False
 
@@ -71,6 +77,7 @@ def test_mongo_to_dict():
         lazzy_list_field=[reference],
         embedded_field=Embedded(name='Peter'),
         heritage_field=HeritageEmbedded(name='some', lastname='other'),
+        code=IntEnum.exito,
     )
     model.save()
     model_dict = mongo_to_dict(model, exclude_fields=['str_field'])
@@ -95,3 +102,4 @@ def test_mongo_to_dict():
         'name': 'some',
         'lastname': 'other',
     }
+    assert model_dict['code'] == 0
