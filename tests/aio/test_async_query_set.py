@@ -57,3 +57,12 @@ async def test_bulk_insert():
     cities_db = list(await City.objects.order_by('+name').async_to_list())
     assert len(cities_db) == len(cities)
     assert all(a.name == b.name for a, b in zip(cities, cities_db))
+
+
+@pytest.mark.asyncio
+async def test_async_delete(cities):
+    city = await City.objects(state='CDMX').async_first()
+    assert city
+    await City.objects(state='CDMX').async_delete()
+    city = await City.objects(state='CDMX').async_first()
+    assert not city
