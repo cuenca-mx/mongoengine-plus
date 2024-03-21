@@ -29,3 +29,10 @@ class AsyncQuerySet(QuerySet):
         return await create_awaitable(
             self.insert, doc_or_docs, load_bulk, write_concern, signal_kwargs
         )
+
+    async def async_delete(
+        self, write_concern=None, _from_doc_delete=False, cascade_refs=None
+    ):
+        return await create_awaitable(
+            self.delete, write_concern, _from_doc_delete, cascade_refs
+        )
