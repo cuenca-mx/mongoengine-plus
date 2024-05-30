@@ -1,10 +1,7 @@
-import os
-import subprocess
-from typing import Generator, Tuple
+from typing import Generator
 
 import boto3
 import pytest
-import requests
 from bson import CodecOptions
 from bson.binary import STANDARD
 from pymongo.encryption import ClientEncryption
@@ -29,7 +26,7 @@ def connect_database(mongo_connection_url: str):
 
 
 @pytest.fixture
-def kms_connection_url():
+def kms_connection_url() -> str:
     # process = subprocess.Popen(
     #     [
     #         'moto_server',
@@ -56,25 +53,29 @@ KMS_PROVIDER = dict(
     )
 )
 
+
 @pytest.fixture
-def master_key_kms(kms_connection_url):
+def kms_key_arn(kms_connection_url) -> str:
     """
     Creates new master key in the local kms, only for testing purpose.
     :return: Tuple: master key ARN, kms region, kms host name
     """
-    kms = boto3.client('kms',
-                       endpoint_url=kms_connection_url,
-                       region_name='us-east-1',
-                       aws_access_key_id='test',
-                       aws_secret_access_key='test',
-                       verify=False,
-                       )
+    kms = boto3.client(
+        'kms',
+        endpoint_url=kms_connection_url,
+        region_name='us-east-1',
+        aws_access_key_id='test',
+        aws_secret_access_key='test',
+        verify=False,
+    )
     kms_key = kms.create_key()
-    return kms_key
+    return kms_key['KeyMetadata']['Arn']
 
 
 @pytest.fixture
-def create_data_key(master_key_kms, connect_database, kms_connection_url) -> Generator:
+def create_data_key(
+    kms_key_arn: str, connect_database, kms_connection_url: str
+) -> Generator:
     """
     Creates data keys for testing purpose. It is required in order to use
     Explicit Client-Side Field Level Encryption (CSFLE)
@@ -82,8 +83,6 @@ def create_data_key(master_key_kms, connect_database, kms_connection_url) -> Gen
     :param master_key_kms: Tuple: master key ARN, kms region, kms host name
     :return: None
     """
-    # client = connect(host=DB_URI)
-
     key_name, key_coll = KEY_NAMESPACE.split(".", 1)
 
     key_vault = connect_database[key_name][key_coll]
@@ -104,9 +103,9 @@ def create_data_key(master_key_kms, connect_database, kms_connection_url) -> Gen
             'aws',
             key_alt_names=[KEY_NAME],
             master_key=dict(
-                key=master_key_kms['KeyMetadata']['Arn'],
+                key=kms_key_arn,
                 region='us-east-1',
-                endpoint=kms_connection_url
+                endpoint=kms_connection_url,
             ),
         )
     yield

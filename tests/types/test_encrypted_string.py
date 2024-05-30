@@ -1,3 +1,3 @@
-def test_encrypted_string(master_key_kms, create_data_key):
+def test_encrypted_string(kms_key_arn, create_data_key):
     breakpoint()
-    assert master_key_kms
+    assert kms_key_arn
