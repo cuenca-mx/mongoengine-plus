@@ -26,7 +26,7 @@ def connect_database(mongo_connection_url: str):
 
 
 @pytest.fixture
-def kms_connection_url() -> str:
+def kms_connection_url() -> Generator[str, None, None]:
     # process = subprocess.Popen(
     #     [
     #         'moto_server',

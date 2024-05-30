@@ -10,8 +10,8 @@ KEY_NAMESPACE = 'encryption.__keyVault'
 KEY_NAME = 'knox-card-key'
 KMS_PROVIDER = dict(
     aws=dict(
-        accessKeyId=os.environ['KMS_AWS_ACCESS_KEY'],
-        secretAccessKey=os.environ['KMS_AWS_SECRET_ACCESS_KEY'],
+        accessKeyId=os.environ['AWS_ACCESS_KEY'],
+        secretAccessKey=os.environ['AWS_SECRET_ACCESS_KEY'],
     )
 )
 
