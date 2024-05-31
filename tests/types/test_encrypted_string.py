@@ -24,6 +24,14 @@ class User(Document):
     )
 
 
+@pytest.fixture
+def user() -> User:
+    user = User(name='Frida Kahlo', nss='secret')
+    user.save()
+    yield user
+    user.delete()
+
+
 def test_configure_encrypted_string():
     EncryptedString.configure_aws_kms(
         'foo.bar',
@@ -84,12 +92,8 @@ def test_create_data_key(
 
 @pytest.mark.usefixtures('setup_encrypted_string_data_key')
 def test_encrypted_string_on_saving_and_reading(
-    kms_key_arn: str, db_connection: MongoClient
+    kms_key_arn: str, user: User, db_connection: MongoClient
 ) -> None:
-    user = User(name='Frida Kahlo', nss='secret')
-    user.save()
-    assert user
-
     same_user = User.objects.get(id=user.id)
     # The EncryptedString field should encrypt the data when saving to MongoDB
     # and decrypt it when reading from MongoDB
@@ -116,8 +120,6 @@ def test_encrypted_string_on_saving_and_reading(
 
 
 @pytest.mark.usefixtures('setup_encrypted_string_data_key')
-def test_query_encrypted_data():
-    user = User(name='Frida Kahlo', nss='12345')
-    user.save()
-    user_db = User.objects(nss='12345').first()
+def test_query_encrypted_data(user: User) -> None:
+    user_db = User.objects(nss=user.nss).first()
     assert user_db.id == user.id
