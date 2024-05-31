@@ -134,7 +134,9 @@ def test_patch_kms_request(kms_connection_url: str) -> None:
     original_kms_request = _EncryptionIO.kms_request
     import boto3
 
-    # create_client_not_verify_ssl = partial(boto3.client, verify=False)
+    # Since we're using a self-signed certificate with the moto_server for testing,
+    # we need to patch boto3.client to disable certificate verification.
+    # This is a workaround and should not be done in production environments.
     with patch('boto3.client', partial(boto3.client, verify=False)):
         patch_kms_request(
             EncryptedString.key_namespace,
