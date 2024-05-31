@@ -149,3 +149,9 @@ def test_patch_kms_request(kms_connection_url: str) -> None:
             kms_connection_url,
         )
         assert _EncryptionIO.kms_request != original_kms_request
+
+        user = User(name='foo', nss='123456')
+        user.save()
+        user_db = User.objects(nss=user.nss).first()
+        assert user_db.id == user.id
+        user.delete()
