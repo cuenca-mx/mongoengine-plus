@@ -1,10 +1,12 @@
+import subprocess
 from typing import Generator
 
 import boto3
 import pytest
-from bson import CodecOptions
-from bson.binary import STANDARD
-from pymongo.encryption import ClientEncryption
+from pymongo import MongoClient
+
+from mongoengine_plus.types import EncryptedString
+from mongoengine_plus.types.encrypted_string.base import create_data_key
 
 
 @pytest.fixture(scope='session')
@@ -19,7 +21,7 @@ def mongo_connection_url() -> Generator[str, None, None]:
 
 
 @pytest.fixture(autouse=True)
-def connect_database(mongo_connection_url: str):
+def db_connection(mongo_connection_url: str) -> MongoClient:
     import mongoengine
 
     return mongoengine.connect(host=mongo_connection_url)
@@ -27,31 +29,25 @@ def connect_database(mongo_connection_url: str):
 
 @pytest.fixture
 def kms_connection_url() -> Generator[str, None, None]:
-    # process = subprocess.Popen(
-    #     [
-    #         'moto_server',
-    #         '-p',
-    #         '4000',
-    #         '-c',
-    #         'tests/kms_cert.crt',
-    #         '-k',
-    #         'tests/kms_private_key.key',
-    #     ]
-    # )
+    process = subprocess.Popen(
+        [
+            'moto_server',
+            '-p',
+            '4000',
+            '-c',
+            'tests/kms_cert.crt',
+            '-k',
+            'tests/kms_private_key.key',
+        ]
+    )
     yield 'https://127.0.0.1:4000'
     # import time
     # time.sleep(5)
-    # process.kill()
+    process.kill()
 
 
 KEY_NAMESPACE = 'encryption.__keyVault'
 KEY_NAME = 'knox-card-key'
-KMS_PROVIDER = dict(
-    aws=dict(
-        accessKeyId='test',
-        secretAccessKey='test',
-    )
-)
 
 
 @pytest.fixture
@@ -73,8 +69,8 @@ def kms_key_arn(kms_connection_url) -> str:
 
 
 @pytest.fixture
-def create_data_key(
-    kms_key_arn: str, connect_database, kms_connection_url: str
+def setup_encrypted_string_data_key(
+    kms_key_arn: str, db_connection, kms_connection_url: str
 ) -> Generator:
     """
     Creates data keys for testing purpose. It is required in order to use
@@ -83,30 +79,25 @@ def create_data_key(
     :param master_key_kms: Tuple: master key ARN, kms region, kms host name
     :return: None
     """
-    key_name, key_coll = KEY_NAMESPACE.split(".", 1)
-
-    key_vault = connect_database[key_name][key_coll]
-    key_vault.drop()
-    key_vault.create_index(
-        "keyAltNames",
-        unique=True,
-        partialFilterExpression={"keyAltNames": {"$exists": True}},
+    EncryptedString.configure_aws_kms(
+        'encryption.__keyVault',
+        'thekey',
+        'test',
+        'test',
+        'us-east-1',
     )
 
-    with ClientEncryption(
-        KMS_PROVIDER,
-        KEY_NAMESPACE,
-        connect_database,
-        CodecOptions(uuid_representation=STANDARD),
-    ) as client_encryption:
-        client_encryption.create_data_key(
-            'aws',
-            key_alt_names=[KEY_NAME],
-            master_key=dict(
-                key=kms_key_arn,
-                region='us-east-1',
-                endpoint=kms_connection_url,
-            ),
-        )
+    db_name, key_coll = EncryptedString.key_namespace.split(".", 1)
+
+    key_vault = db_connection[db_name][key_coll]
+    key_vault.drop()
+    create_data_key(
+        EncryptedString.kms_provider,
+        EncryptedString.key_namespace,
+        kms_key_arn,
+        'thekey',
+        kms_connection_url,
+        'us-east-1',
+    )
     yield
     key_vault.drop()
