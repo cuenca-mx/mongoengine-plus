@@ -2,9 +2,9 @@ black==22.3.0
 flake8==3.9.*
 isort==5.8.*
 mypy==0.812
-mongomock==3.22.*
+moto[server,kms]==5.0.8
 pytest==6.2.*
 pytest-asyncio==0.15.1
 pytest-cov==2.12.*
 pytest-freezegun==0.4.*
-moto[server,kms]==5.0.8
+testcontainers==3.7.1
