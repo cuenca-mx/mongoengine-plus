@@ -9,7 +9,7 @@ from mongoengine_plus.types import EncryptedString
 from mongoengine_plus.types.encrypted_string.base import create_data_key
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='session', autouse=True)
 def mongo_connection_url() -> Generator[str, None, None]:
     from testcontainers.mongodb import MongoDbContainer
 
@@ -20,14 +20,14 @@ def mongo_connection_url() -> Generator[str, None, None]:
         )
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(scope='session', autouse=True)
 def db_connection(mongo_connection_url: str) -> MongoClient:
     import mongoengine
 
     return mongoengine.connect(host=mongo_connection_url)
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def kms_connection_url() -> Generator[str, None, None]:
     process = subprocess.Popen(
         [
@@ -35,9 +35,9 @@ def kms_connection_url() -> Generator[str, None, None]:
             '-p',
             '4000',
             '-c',
-            'tests/kms_cert.crt',
+            'tests/localhost.crt',
             '-k',
-            'tests/kms_private_key.key',
+            'tests/localhost.key',
         ]
     )
     yield 'https://127.0.0.1:4000'
@@ -50,7 +50,7 @@ KEY_NAMESPACE = 'encryption.__keyVault'
 KEY_NAME = 'knox-card-key'
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def kms_key_arn(kms_connection_url) -> str:
     """
     Creates new master key in the local kms, only for testing purpose.
@@ -68,7 +68,7 @@ def kms_key_arn(kms_connection_url) -> str:
     return kms_key['KeyMetadata']['Arn']
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def setup_encrypted_string_data_key(
     kms_key_arn: str, db_connection, kms_connection_url: str
 ) -> Generator:
