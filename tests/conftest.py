@@ -70,7 +70,7 @@ def kms_key_arn(kms_connection_url) -> str:
 
 @pytest.fixture(scope='session')
 def setup_encrypted_string_data_key(
-    kms_key_arn: str, db_connection, kms_connection_url: str
+    kms_key_arn: str, db_connection: MongoClient, kms_connection_url: str
 ) -> Generator:
     """
     Creates data keys for testing purpose. It is required in order to use
