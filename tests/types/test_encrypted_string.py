@@ -1,4 +1,5 @@
 from functools import partial
+from typing import Generator
 from unittest.mock import patch
 
 import pytest
@@ -29,7 +30,7 @@ class User(Document):
 
 
 @pytest.fixture
-def user() -> User:
+def user() -> Generator[User, None, None]:
     user = User(name='Frida Kahlo', nss='123456')
     user.save()
     yield user
@@ -134,9 +135,10 @@ def test_patch_kms_request(kms_connection_url: str) -> None:
     original_kms_request = _EncryptionIO.kms_request
     import boto3
 
-    # Since we're using a self-signed certificate with the moto_server for testing,
-    # we need to patch boto3.client to disable certificate verification.
-    # This is a workaround and should not be done in production environments.
+    # Since we're using a self-signed certificate with the moto_server
+    # for testing, we need to patch boto3.client to disable
+    # certificate verification. This is a workaround and should not be done
+    # in production environments.
     with patch('boto3.client', partial(boto3.client, verify=False)):
         patch_kms_request(
             EncryptedString.key_namespace,

@@ -1,7 +1,6 @@
 __all__ = ['EncryptedString', 'patch_kms_request']
 
 import codecs
-import os
 
 import boto3
 from pymongo.encryption import _EncryptionIO
