@@ -1,11 +1,15 @@
+from functools import partial
+from unittest.mock import patch
+
 import pytest
 from bson import Binary
 from mongoengine import Document, StringField
 from pymongo import MongoClient
-from pymongo.encryption import Algorithm, ClientEncryption
+from pymongo.encryption import Algorithm, ClientEncryption, _EncryptionIO
 
 from mongoengine_plus.models import uuid_field
 from mongoengine_plus.types import EncryptedString
+from mongoengine_plus.types.encrypted_string import patch_kms_request
 from mongoengine_plus.types.encrypted_string.base import (
     create_data_key,
     get_data_key,
@@ -26,7 +30,7 @@ class User(Document):
 
 @pytest.fixture
 def user() -> User:
-    user = User(name='Frida Kahlo', nss='secret')
+    user = User(name='Frida Kahlo', nss='123456')
     user.save()
     yield user
     user.delete()
@@ -94,10 +98,10 @@ def test_create_data_key(
 def test_encrypted_string_on_saving_and_reading(
     kms_key_arn: str, user: User, db_connection: MongoClient
 ) -> None:
-    same_user = User.objects.get(id=user.id)
+    user_db = User.objects.get(id=user.id)
     # The EncryptedString field should encrypt the data when saving to MongoDB
     # and decrypt it when reading from MongoDB
-    assert same_user.nss == 'secret'
+    assert user_db.nss == user.nss
 
     # Attempting to read the same field using PyMongo or any other library
     # should only retrieve the encrypted bytes
@@ -116,10 +120,28 @@ def test_encrypted_string_on_saving_and_reading(
     ) as client_encryption:
         # The ClientEncryption object should be able to decrypt the encrypted
         # value stored in MongoDB
-        assert client_encryption.decrypt(user_dict['nss']) == 'secret'
+        assert client_encryption.decrypt(user_dict['nss']) == user.nss
 
 
 @pytest.mark.usefixtures('setup_encrypted_string_data_key')
 def test_query_encrypted_data(user: User) -> None:
     user_db = User.objects(nss=user.nss).first()
     assert user_db.id == user.id
+
+
+@pytest.mark.usefixtures('setup_encrypted_string_data_key')
+def test_patch_kms_request(kms_connection_url: str) -> None:
+    original_kms_request = _EncryptionIO.kms_request
+    import boto3
+
+    # create_client_not_verify_ssl = partial(boto3.client, verify=False)
+    with patch('boto3.client', partial(boto3.client, verify=False)):
+        patch_kms_request(
+            EncryptedString.key_namespace,
+            EncryptedString.key_name,
+            'test',
+            'test',
+            'us-east-1',
+            kms_connection_url,
+        )
+        assert _EncryptionIO.kms_request != original_kms_request

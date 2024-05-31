@@ -9,16 +9,26 @@ from pymongo.encryption import _EncryptionIO
 from .fields import EncryptedString
 
 
-def patch_kms_request():
+def patch_kms_request(
+    key_namespace: str,
+    key_name: str,
+    aws_access_key_id: str,
+    aws_secret_access_key: str,
+    aws_region_name: str,
+    kms_endpoint_url: str,
+) -> None:
     from .base import get_data_key
 
-    data_key = get_data_key()
+    data_key = get_data_key(
+        key_namespace,
+        key_name,
+    )
     kms = boto3.client(
         'kms',
-        region_name=os.environ.get('KMS_REGION', 'us-east-1'),
-        aws_access_key_id=os.environ['KMS_AWS_ACCESS_KEY'],
-        aws_secret_access_key=os.environ['KMS_AWS_SECRET_ACCESS_KEY'],
-        endpoint_url=f'https://{os.environ["KMS_ENDPOINT"]}/',
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key,
+        region_name=aws_region_name,
+        endpoint_url=kms_endpoint_url,
     )
     response = kms.decrypt(
         CiphertextBlob=data_key['keyMaterial'],
