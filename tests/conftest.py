@@ -41,8 +41,6 @@ def kms_connection_url() -> Generator[str, None, None]:
         ]
     )
     yield 'https://127.0.0.1:4000'
-    # import time
-    # time.sleep(5)
     process.kill()
 
 

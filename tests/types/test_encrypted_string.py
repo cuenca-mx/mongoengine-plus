@@ -6,7 +6,11 @@ from pymongo.encryption import Algorithm, ClientEncryption
 
 from mongoengine_plus.models import uuid_field
 from mongoengine_plus.types import EncryptedString
-from mongoengine_plus.types.encrypted_string.base import create_data_key
+from mongoengine_plus.types.encrypted_string.base import (
+    create_data_key,
+    get_data_key,
+)
+from mongoengine_plus.types.encrypted_string.exc import NoDataKeyFound
 from mongoengine_plus.types.encrypted_string.fields import CODEC_OPTION
 
 
@@ -34,6 +38,11 @@ def test_configure_encrypted_string():
     assert EncryptedString.kms_provider == dict(
         aws=dict(accessKeyId='test', secretAccessKey='test')
     )
+
+
+def test_get_data_key_not_found() -> None:
+    with pytest.raises(NoDataKeyFound):
+        get_data_key('foo.bar', 'thekey')
 
 
 def test_create_data_key(
@@ -104,3 +113,11 @@ def test_encrypted_string_on_saving_and_reading(
         # The ClientEncryption object should be able to decrypt the encrypted
         # value stored in MongoDB
         assert client_encryption.decrypt(user_dict['nss']) == 'secret'
+
+
+@pytest.mark.usefixtures('setup_encrypted_string_data_key')
+def test_query_encrypted_data():
+    user = User(name='Frida Kahlo', nss='12345')
+    user.save()
+    user_db = User.objects(nss='12345').first()
+    assert user_db.id == user.id
