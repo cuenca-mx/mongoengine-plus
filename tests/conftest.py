@@ -44,15 +44,10 @@ def kms_connection_url() -> Generator[str, None, None]:
     process.kill()
 
 
-KEY_NAMESPACE = 'encryption.__keyVault'
-KEY_NAME = 'knox-card-key'
-
-
 @pytest.fixture(scope='session')
-def kms_key_arn(kms_connection_url) -> str:
+def kms_key_arn(kms_connection_url: str) -> str:
     """
     Creates new master key in the local kms, only for testing purpose.
-    :return: Tuple: master key ARN, kms region, kms host name
     """
     kms = boto3.client(
         'kms',
@@ -73,9 +68,6 @@ def setup_encrypted_string_data_key(
     """
     Creates data keys for testing purpose. It is required in order to use
     Explicit Client-Side Field Level Encryption (CSFLE)
-
-    :param master_key_kms: Tuple: master key ARN, kms region, kms host name
-    :return: None
     """
     EncryptedString.configure_aws_kms(
         'encryption.__keyVault',

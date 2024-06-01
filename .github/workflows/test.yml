@@ -53,6 +53,7 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1.5.0
         with:
+          token: 1455e721-304d-43a9-b346-bcdacfac6631
           file: ./coverage.xml
           flags: unittests
           name: codecov-umbrella
