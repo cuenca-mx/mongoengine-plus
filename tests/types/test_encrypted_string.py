@@ -22,7 +22,7 @@ from mongoengine_plus.types.encrypted_string.fields import CODEC_OPTION
 class User(Document):
     id = StringField(primary_key=True, default=uuid_field('US'))
     name = StringField()
-    nss = EncryptedStringField(
+    ssn = EncryptedStringField(
         algorithm=Algorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic,
         required=True,
         unique=True,
@@ -31,7 +31,7 @@ class User(Document):
 
 @pytest.fixture
 def user() -> Generator[User, None, None]:
-    user = User(name='Frida Kahlo', nss='123456')
+    user = User(name='Frida Kahlo', ssn='123456')
     user.save()
     yield user
     user.delete()
@@ -102,7 +102,7 @@ def test_encrypted_string_on_saving_and_reading(
     user_db = User.objects.get(id=user.id)
     # The EncryptedString field should encrypt the data when saving to MongoDB
     # and decrypt it when reading from MongoDB
-    assert user_db.nss == user.nss
+    assert user_db.ssn == user.ssn
 
     # Attempting to read the same field using PyMongo or any other library
     # should only retrieve the encrypted bytes
@@ -111,7 +111,7 @@ def test_encrypted_string_on_saving_and_reading(
 
     assert user_dict['_id'] == user.id
     assert user_dict['name'] == user.name
-    assert type(user_dict['nss']) == Binary
+    assert type(user_dict['ssn']) == Binary
 
     with ClientEncryption(
         EncryptedStringField.kms_provider,
@@ -121,12 +121,12 @@ def test_encrypted_string_on_saving_and_reading(
     ) as client_encryption:
         # The ClientEncryption object should be able to decrypt the encrypted
         # value stored in MongoDB
-        assert client_encryption.decrypt(user_dict['nss']) == user.nss
+        assert client_encryption.decrypt(user_dict['ssn']) == user.ssn
 
 
 @pytest.mark.usefixtures('setup_encrypted_string_data_key')
 def test_query_encrypted_data(user: User) -> None:
-    user_db = User.objects(nss=user.nss).first()
+    user_db = User.objects(ssn=user.ssn).first()
     assert user_db.id == user.id
 
 
@@ -150,8 +150,8 @@ def test_cache_kms_request(kms_connection_url: str) -> None:
         )
         assert _EncryptionIO.kms_request != original_kms_request
 
-        user = User(name='foo', nss='123456')
+        user = User(name='foo', ssn='123456')
         user.save()
-        user_db = User.objects(nss=user.nss).first()
+        user_db = User.objects(ssn=user.ssn).first()
         assert user_db.id == user.id
         user.delete()
