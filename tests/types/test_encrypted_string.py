@@ -10,7 +10,7 @@ from pymongo.encryption import Algorithm, ClientEncryption, _EncryptionIO
 
 from mongoengine_plus.models import uuid_field
 from mongoengine_plus.types import EncryptedString
-from mongoengine_plus.types.encrypted_string import patch_kms_request
+from mongoengine_plus.types.encrypted_string import cache_kms_data_key
 from mongoengine_plus.types.encrypted_string.base import (
     create_data_key,
     get_data_key,
@@ -131,7 +131,7 @@ def test_query_encrypted_data(user: User) -> None:
 
 
 @pytest.mark.usefixtures('setup_encrypted_string_data_key')
-def test_patch_kms_request(kms_connection_url: str) -> None:
+def test_cache_kms_request(kms_connection_url: str) -> None:
     original_kms_request = _EncryptionIO.kms_request
     import boto3
 
@@ -140,7 +140,7 @@ def test_patch_kms_request(kms_connection_url: str) -> None:
     # certificate verification. This is a workaround and should not be done
     # in production environments.
     with patch('boto3.client', partial(boto3.client, verify=False)):
-        patch_kms_request(
+        cache_kms_data_key(
             EncryptedString.key_namespace,
             EncryptedString.key_name,
             'test',

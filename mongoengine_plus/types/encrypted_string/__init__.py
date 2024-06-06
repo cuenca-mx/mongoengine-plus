@@ -1,4 +1,4 @@
-__all__ = ['EncryptedString', 'patch_kms_request']
+__all__ = ['EncryptedString', 'cache_kms_data_key']
 
 import codecs
 
@@ -8,7 +8,7 @@ from pymongo.encryption import _EncryptionIO
 from .fields import EncryptedString
 
 
-def patch_kms_request(
+def cache_kms_data_key(
     key_namespace: str,
     key_name: str,
     aws_access_key_id: str,
@@ -16,6 +16,11 @@ def patch_kms_request(
     aws_region_name: str,
     kms_endpoint_url: str,
 ) -> None:
+    """
+    Retrieve the KMS Key used to encrypt and decrypt data and creates a cache
+    to optimize the usage of `EncryptedString`. You should execute this function once
+    before making any database write or read operations
+    """
     from .base import get_data_key
 
     data_key = get_data_key(
@@ -45,7 +50,6 @@ def patch_kms_request(
 
     content_length = len(content)
 
-    # En las pruebas
     kms_response_template = (
         f'HTTP/1.1 200 OK\r\n'
         f'Content-Type: application/x-amz-json-1.1\r\n'
