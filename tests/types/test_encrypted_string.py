@@ -9,7 +9,7 @@ from pymongo import MongoClient
 from pymongo.encryption import Algorithm, ClientEncryption, _EncryptionIO
 
 from mongoengine_plus.models import uuid_field
-from mongoengine_plus.types import EncryptedString
+from mongoengine_plus.types import EncryptedStringField
 from mongoengine_plus.types.encrypted_string import cache_kms_data_key
 from mongoengine_plus.types.encrypted_string.base import (
     create_data_key,
@@ -22,7 +22,7 @@ from mongoengine_plus.types.encrypted_string.fields import CODEC_OPTION
 class User(Document):
     id = StringField(primary_key=True, default=uuid_field('US'))
     name = StringField()
-    nss = EncryptedString(
+    nss = EncryptedStringField(
         algorithm=Algorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic,
         required=True,
         unique=True,
@@ -38,17 +38,17 @@ def user() -> Generator[User, None, None]:
 
 
 def test_configure_encrypted_string():
-    EncryptedString.configure_aws_kms(
+    EncryptedStringField.configure_aws_kms(
         'foo.bar',
         'keyname',
         'test',
         'test',
         'us-east-1',
     )
-    assert EncryptedString.key_namespace == 'foo.bar'
-    assert EncryptedString.key_name == 'keyname'
-    assert EncryptedString.aws_region_name == 'us-east-1'
-    assert EncryptedString.kms_provider == dict(
+    assert EncryptedStringField.key_namespace == 'foo.bar'
+    assert EncryptedStringField.key_name == 'keyname'
+    assert EncryptedStringField.aws_region_name == 'us-east-1'
+    assert EncryptedStringField.kms_provider == dict(
         aws=dict(accessKeyId='test', secretAccessKey='test')
     )
 
@@ -66,7 +66,7 @@ def test_create_data_key(
     key_name = 'thekey'
     kms_region_name = 'us-east-1'
 
-    EncryptedString.configure_aws_kms(
+    EncryptedStringField.configure_aws_kms(
         f'{db_name}.{collection_name}',
         key_name,
         'test',
@@ -74,8 +74,8 @@ def test_create_data_key(
         kms_region_name,
     )
     create_data_key(
-        EncryptedString.kms_provider,
-        EncryptedString.key_namespace,
+        EncryptedStringField.kms_provider,
+        EncryptedStringField.key_namespace,
         kms_key_arn,
         key_name,
         kms_connection_url,
@@ -89,7 +89,7 @@ def test_create_data_key(
     assert type(data_key['keyMaterial']) is bytes
     assert data_key['masterKey'] == dict(
         provider='aws',
-        region=EncryptedString.aws_region_name,
+        region=EncryptedStringField.aws_region_name,
         key=kms_key_arn,
         endpoint=kms_connection_url.replace('https://', ''),
     )
@@ -114,8 +114,8 @@ def test_encrypted_string_on_saving_and_reading(
     assert type(user_dict['nss']) == Binary
 
     with ClientEncryption(
-        EncryptedString.kms_provider,
-        EncryptedString.key_namespace,
+        EncryptedStringField.kms_provider,
+        EncryptedStringField.key_namespace,
         client,
         CODEC_OPTION,
     ) as client_encryption:
@@ -141,8 +141,8 @@ def test_cache_kms_request(kms_connection_url: str) -> None:
     # in production environments.
     with patch('boto3.client', partial(boto3.client, verify=False)):
         cache_kms_data_key(
-            EncryptedString.key_namespace,
-            EncryptedString.key_name,
+            EncryptedStringField.key_namespace,
+            EncryptedStringField.key_name,
             'test',
             'test',
             'us-east-1',

@@ -1,11 +1,11 @@
-__all__ = ['EncryptedString', 'cache_kms_data_key']
+__all__ = ['EncryptedStringField', 'cache_kms_data_key']
 
 import codecs
 
 import boto3
 from pymongo.encryption import _EncryptionIO
 
-from .fields import EncryptedString
+from .fields import EncryptedStringField
 
 
 def cache_kms_data_key(
@@ -18,8 +18,8 @@ def cache_kms_data_key(
 ) -> None:
     """
     Retrieve the KMS Key used to encrypt and decrypt data and creates a cache
-    to optimize the usage of `EncryptedString`. You should execute this function once
-    before making any database write or read operations
+    to optimize the usage of `EncryptedString`. You should execute this
+    function once before making any database write or read operations
     """
     from .base import get_data_key
 

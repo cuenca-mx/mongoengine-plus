@@ -11,7 +11,7 @@ from .base import get_data_key_binary
 CODEC_OPTION = CodecOptions(uuid_representation=STANDARD)
 
 
-class EncryptedString(BaseField):
+class EncryptedStringField(BaseField):
     """
     Represents an encrypted string. Supports two types of
     encryption algorithms: Deterministic and Random.

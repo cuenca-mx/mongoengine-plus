@@ -5,7 +5,7 @@ import boto3
 import pytest
 from pymongo import MongoClient
 
-from mongoengine_plus.types import EncryptedString
+from mongoengine_plus.types import EncryptedStringField
 from mongoengine_plus.types.encrypted_string.base import create_data_key
 
 
@@ -69,7 +69,7 @@ def setup_encrypted_string_data_key(
     Creates data keys for testing purpose. It is required in order to use
     Explicit Client-Side Field Level Encryption (CSFLE)
     """
-    EncryptedString.configure_aws_kms(
+    EncryptedStringField.configure_aws_kms(
         'encryption.__keyVault',
         'thekey',
         'test',
@@ -77,13 +77,13 @@ def setup_encrypted_string_data_key(
         'us-east-1',
     )
 
-    db_name, key_coll = EncryptedString.key_namespace.split(".", 1)
+    db_name, key_coll = EncryptedStringField.key_namespace.split(".", 1)
 
     key_vault = db_connection[db_name][key_coll]
     key_vault.drop()
     create_data_key(
-        EncryptedString.kms_provider,
-        EncryptedString.key_namespace,
+        EncryptedStringField.kms_provider,
+        EncryptedStringField.key_namespace,
         kms_key_arn,
         'thekey',
         kms_connection_url,

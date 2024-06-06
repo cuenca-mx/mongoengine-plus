@@ -1,4 +1,7 @@
 # mongoengine-plus
+[![codecov](https://codecov.io/gh/cuenca-mx/mongoengine-plus/graph/badge.svg?token=CwoY4toTQU)](https://codecov.io/gh/cuenca-mx/mongoengine-plus)
+[![test](https://github.com/cuenca-mx/cuenca-python/workflows/test/badge.svg)](https://github.com/cuenca-mx/mongoengine-plus/actions?query=workflow%3Atest)
+
 Extra field types, function helpers and asyncio support for [mongoengine](https://github.com/MongoEngine/mongoengine)
 
 ## Installation
@@ -148,22 +151,23 @@ We recommend using `async_to_list()` for small result sets.
 
 ## Client-side Field Level Encryption
 
-Mongoengine-plus introduces a new field type called `EncryptedString` that implements
+Mongoengine-plus introduces a new field type called `EncryptedStringField` that implements
 Client-side Field Level Encryption ([CSFLE](https://www.mongodb.com/docs/manual/core/csfle/))
 using [pymongo](https://pymongo.readthedocs.io/en/stable/examples/encryption.html) encryption classes.
 This feature allows explicit data encryption before sending it over the network to MongoDB,
 and automatic data decryption after reading from MongoDB. It supports both synchronous
-and asynchronous operations. Currently, the `EncryptedString` implementation supports
+and asynchronous operations. Currently, the `EncryptedStringField` implementation supports
 the AWS KMS service as the Key Management Service (KMS) provider.
 
 ```python
 from mongoengine import Document, StringField
-from mongoengine_plus.types import EncryptedString
+from mongoengine_plus.types import EncryptedStringField
 from pymongo.encryption import Algorithm
+
 
 class User(Document):
     id = StringField(primary_key=True)
-    ssn = EncryptedString(
+    ssn = EncryptedStringField(
         algorithm=Algorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic
     )
 
@@ -177,11 +181,11 @@ print(user_.ssn)  # Output: '12345'
 
 ```
 
-There are a few steps before you can start using `EncryptedString`. 
+There are a few steps before you can start using `EncryptedStringField`. 
 
 ### 1. Create a Data Encryption Key (DEK)
 
-Before using `EncryptedString`, you'll need to create a Data Encryption Key (DEK) 
+Before using `EncryptedStringField`, you'll need to create a Data Encryption Key (DEK) 
 for encrypting and decrypting your data. The DEK should follow the recommended 
 requirements described in the official MongoDB documentation on [Keys and Key Vaults](https://www.mongodb.com/docs/manual/core/csfle/fundamentals/keys-key-vaults/#std-label-csfle-reference-keys-key-vaults).
 We've provided a helper method to create your DEK easily.
@@ -211,19 +215,18 @@ You'll need to execute this step only once during the project setup. Ensure that
 MongoDB user has the necessary permissions for collection and index creation, and 
 access to the AWS KMS key.
 
-### 2. Configure `EncryptedString`
+### 2. Configure `EncryptedStringField`
 
-Since `EncryptedString` needs to read the DEK from your MongoDB instance and access the 
+Since `EncryptedStringField` needs to read the DEK from your MongoDB instance and access the 
 KMS key for encryption/decryption, you'll need to configure it as follows. This 
 configuration might be in your `__init__.py` file and should be executed once.
 
 ```python
 from mongoengine import Document, StringField
-from mongoengine_plus.types import EncryptedString
+from mongoengine_plus.types import EncryptedStringField
 from pymongo.encryption import Algorithm
 
-
-EncryptedString.configure_aws_kms(
+EncryptedStringField.configure_aws_kms(
     'encryption.__keyVault',
     'my_key_name',
     'your-aws-key-id',
@@ -234,7 +237,7 @@ EncryptedString.configure_aws_kms(
 
 class User(Document):
     id = StringField(primary_key=True)
-    ssn = EncryptedString(
+    ssn = EncryptedStringField(
         algorithm=Algorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic
     )
 ```
@@ -243,7 +246,7 @@ Now you are ready to go!
 
 ### 3. Optimize KMS requests (optional)
 
-There's a caveat in the `EncryptedString` implementation. Every time `EncryptedString` needs
+There's a caveat in the `EncryptedStringField` implementation. Every time `EncryptedStringField` needs
 to encrypt or decrypt data, it uses the `pymongo.encryption.ClientEncryption`,
 which makes a request to the AWS KMS service endpoint. This can potentially slow down
 the performance of reading and writing encrypted data to MongoDB. As a workaround,

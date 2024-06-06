@@ -1,4 +1,4 @@
-__all__ = ['EnumField', 'EncryptedString']
+__all__ = ['EnumField', 'EncryptedStringField']
 
-from .encrypted_string.fields import EncryptedString
+from .encrypted_string.fields import EncryptedStringField
 from .enum_field import EnumField
