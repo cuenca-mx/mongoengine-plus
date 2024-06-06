@@ -21,7 +21,7 @@ Don't worry about setting up Mongo manually; the test suite will handle that for
 **Self-signed certificates**
 
 To test CSFLE, you need to mock a KMS provider that supports HTTPS requests. We use [moto](https://github.com/getmoto/moto) 
-as a KMS mock server running on your localhost. This allows us to set up the required SSL certificates 
+as a KMS mock server running on localhost. This allows us to set up the required SSL certificates 
 so that the `pymongo.encryption` classes don't raise any complaints. The current testing certificates 
 are located in `tests/localhost.*`. The configuration file for the certificates is `/tests/cert.conf`.
 
