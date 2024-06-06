@@ -12,9 +12,28 @@ pip install mongoengine-plus
 ## Testing
 
 ### Requirements
-**Docker**: Make sure you have Docker installed, as the unit tests require a real Mongo database instance.
+**Docker**
+
+Make sure you have Docker installed, as the unit tests require a real Mongo database instance.
 It is required in order to test Client-Side Field Level Encryption (CSFLE) not supported by mongomock.
 Don't worry about setting up Mongo manually; the test suite will handle that for you.
+
+**Self-signed certificates**
+
+To test CSFLE, you need to mock a KMS provider that supports HTTPS requests. We use [moto](https://github.com/getmoto/moto) 
+as a KMS mock server running on your localhost. This allows us to set up the required SSL certificates 
+so that the `pymongo.encryption` classes don't raise any complaints. The current testing certificates 
+are located in `tests/localhost.*`. The configuration file for the certificates is `/tests/cert.conf`.
+
+If you need to create new self-signed certificates, you can follow these steps:
+
+```bash
+cd tests
+openssl genrsa -out localhost.key 2048
+openssl req -new -key localhost.key -out localhost.csr -config cert.conf
+# creates a certificate valid for 1 year
+openssl x509 -req -days 365 -in localhost.csr -signkey localhost.key -out localhost.crt -extensions v3_utils -extfile cert.conf
+```
 
 ### Clone, install requirements and run tests
 ```bash
