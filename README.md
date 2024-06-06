@@ -149,7 +149,8 @@ We recommend using `async_to_list()` for small result sets.
 ## Client-side Field Level Encryption
 
 Mongoengine-plus introduces a new field type called `EncryptedString` that implements
-Client-side Field Level Encryption ([CSFLE](https://www.mongodb.com/docs/manual/core/csfle/)).
+Client-side Field Level Encryption ([CSFLE](https://www.mongodb.com/docs/manual/core/csfle/))
+using [pymongo](https://pymongo.readthedocs.io/en/stable/examples/encryption.html) encryption classes.
 This feature allows explicit data encryption before sending it over the network to MongoDB,
 and automatic data decryption after reading from MongoDB. It supports both synchronous
 and asynchronous operations. Currently, the `EncryptedString` implementation supports
