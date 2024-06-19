@@ -29,7 +29,7 @@ setup(
         'dnspython>=2.0.0,<2.2.0',
         'pymongo>=3.11.0,<4.0.0',
         'pymongocrypt>=1.9.2,<2.0.0',
-        'boto3>=1.34.130',
+        'boto3>=1.34.106',
     ],
     classifiers=[
         'Programming Language :: Python :: 3.8',
