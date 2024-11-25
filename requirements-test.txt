@@ -5,6 +5,6 @@ mypy==0.812
 moto[server,kms]==5.0.8
 pytest==6.2.*
 pytest-asyncio==0.15.1
-pytest-cov==2.12.*
+pytest-cov==4.0.*
 pytest-freezegun==0.4.*
 testcontainers==3.7.1
