@@ -44,7 +44,7 @@ def cache_kms_data_key(
     content = (
         '{'
         '"EncryptionAlgorithm":"SYMMETRIC_DEFAULT",'
-        f'"Plaintext":"{decrypted_data_key}"'
+        f'"Plaintext": "{decrypted_data_key}"'
         '}'
     )
 
