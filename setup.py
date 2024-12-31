@@ -23,7 +23,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     package_data=dict(mongoengine_plus=['py.typed']),
-    python_requires='>=3.8',
+    python_requires='>=3.9',
     install_requires=[
         'mongoengine>=0.20.0',
         'dnspython>=2.0.0,<2.2.0',
@@ -32,7 +32,11 @@ setup(
         'boto3>=1.34.106',
     ],
     classifiers=[
-        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
     ],
