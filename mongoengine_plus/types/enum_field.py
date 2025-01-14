@@ -19,7 +19,7 @@ class EnumField(BaseField):
         super(EnumField, self).__init__(*args, **kwargs)
 
     def __get_value(self, enum: Enum) -> str:
-        return enum.value if hasattr(enum, 'value') else str(enum)
+        return enum.value
 
     def to_python(self, value: Enum) -> Enum:  # pragma: no cover
         return self.enum(super(EnumField, self).to_python(value))
