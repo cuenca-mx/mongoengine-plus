@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Type
+from typing import Any, Type, Union
 
 from mongoengine.base import BaseField
 
@@ -18,7 +18,7 @@ class EnumField(BaseField):
         kwargs['choices'] = [choice for choice in enum]
         super(EnumField, self).__init__(*args, **kwargs)
 
-    def __get_value(self, enum: Enum) -> str:
+    def __get_value(self, enum: Enum) -> Union[str, Any]:
         return enum.value if hasattr(enum, 'value') else enum
 
     def to_python(self, value: Enum) -> Enum:  # pragma: no cover

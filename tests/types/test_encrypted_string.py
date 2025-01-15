@@ -111,7 +111,7 @@ def test_encrypted_string_on_saving_and_reading(
 
     assert user_dict['_id'] == user.id
     assert user_dict['name'] == user.name
-    assert type(user_dict['ssn']) == Binary
+    assert isinstance(user_dict['ssn'], Binary)
 
     with ClientEncryption(
         EncryptedStringField.kms_provider,

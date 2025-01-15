@@ -103,3 +103,8 @@ def test_mongo_to_dict():
         'lastname': 'other',
     }
     assert model_dict['code'] == 0
+
+
+def test_mongo_to_dict_with_none():
+    result = mongo_to_dict(None)
+    assert result == {}
