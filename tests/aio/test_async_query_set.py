@@ -66,3 +66,45 @@ async def test_async_delete(cities):
     await City.objects(state='CDMX').async_delete()
     city = await City.objects(state='CDMX').async_first()
     assert not city
+
+
+@pytest.mark.asyncio
+async def test_async_modify(cities):
+    # Test modifying a document and returning the updated version
+    city = await City.objects(name='San Cristobal').async_modify(
+        set__name='San Cristobal de las Casas', new=True
+    )
+    assert city.name == 'San Cristobal de las Casas'
+
+    # Verify the change was saved to the database
+    db_city = await City.objects(
+        name='San Cristobal de las Casas'
+    ).async_first()
+    assert db_city is not None
+    assert db_city.name == 'San Cristobal de las Casas'
+
+    # Test modifying a document and returning the original version
+    city = await City.objects(name='Tuxtla Gutiérrez').async_modify(
+        set__name='Tuxtla', new=False
+    )
+    assert city.name == 'Tuxtla Gutiérrez'
+
+    # Verify the change was still made
+    db_city = await City.objects(name='Tuxtla').async_first()
+    assert db_city is not None
+
+    # Test upsert when document doesn't exist
+    new_city = await City.objects(name='Cancún').async_modify(
+        set__state='Quintana Roo', upsert=True, new=True
+    )
+    assert new_city is not None
+    assert new_city.name == 'Cancún'
+    assert new_city.state == 'Quintana Roo'
+
+    # Test remove option
+    city = await City.objects(name='Cancún').async_modify(remove=True)
+    assert city.name == 'Cancún'
+
+    # Verify the document was removed
+    db_city = await City.objects(name='Cancún').async_first()
+    assert db_city is None

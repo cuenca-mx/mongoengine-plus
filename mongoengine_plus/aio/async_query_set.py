@@ -36,3 +36,22 @@ class AsyncQuerySet(QuerySet):
         return await create_awaitable(
             self.delete, write_concern, _from_doc_delete, cascade_refs
         )
+
+    async def async_modify(
+        self,
+        upsert=False,
+        full_response=False,
+        remove=False,
+        new=False,
+        array_filters=None,
+        **update,
+    ):
+        return await create_awaitable(
+            self.modify,
+            upsert=upsert,
+            full_response=full_response,
+            remove=remove,
+            new=new,
+            array_filters=array_filters,
+            **update,
+        )
