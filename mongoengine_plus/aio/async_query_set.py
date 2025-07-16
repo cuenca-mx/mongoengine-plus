@@ -1,23 +1,22 @@
+from asyncer import asyncify
 from mongoengine import QuerySet
-
-from .utils import create_awaitable
 
 
 class AsyncQuerySet(QuerySet):
     async def async_first(self):
-        return await create_awaitable(self.first)
+        return await asyncify(self.first)()
 
     async def async_get(self, *q_objs, **query):
-        return await create_awaitable(self.get, *q_objs, **query)
+        return await asyncify(self.get)(*q_objs, **query)
 
     async def async_count(self, with_limit_and_skip=False):
-        return await create_awaitable(self.count, with_limit_and_skip)
+        return await asyncify(self.count)(with_limit_and_skip)
 
     async def async_to_list(self):
-        return await create_awaitable(list, self)
+        return await asyncify(list)(self)
 
     async def async_update(self, *u_objs, **query):
-        return await create_awaitable(self.update, *u_objs, **query)
+        return await asyncify(self.update)(*u_objs, **query)
 
     async def async_insert(
         self,
@@ -26,15 +25,15 @@ class AsyncQuerySet(QuerySet):
         write_concern=None,
         signal_kwargs=None,
     ):
-        return await create_awaitable(
-            self.insert, doc_or_docs, load_bulk, write_concern, signal_kwargs
+        return await asyncify(self.insert)(
+            doc_or_docs, load_bulk, write_concern, signal_kwargs
         )
 
     async def async_delete(
         self, write_concern=None, _from_doc_delete=False, cascade_refs=None
     ):
-        return await create_awaitable(
-            self.delete, write_concern, _from_doc_delete, cascade_refs
+        return await asyncify(self.delete)(
+            write_concern, _from_doc_delete, cascade_refs
         )
 
     async def async_modify(
