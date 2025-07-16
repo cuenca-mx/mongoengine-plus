@@ -45,8 +45,7 @@ class AsyncQuerySet(QuerySet):
         array_filters=None,
         **update,
     ):
-        return await create_awaitable(
-            self.modify,
+        return await asyncify(self.modify)(
             upsert=upsert,
             full_response=full_response,
             remove=remove,
