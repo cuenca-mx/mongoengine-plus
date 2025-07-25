@@ -1,1 +1,1 @@
-__version__ = '1.2.0.dev+asyncsignals'
+__version__ = '1.2.0.dev1+asyncsignals'
