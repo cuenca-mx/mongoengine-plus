@@ -1,6 +1,7 @@
 from mongoengine import Document
 
 from .async_query_set import AsyncQuerySet
+from .async_signals import post_save, pre_save
 from .utils import create_awaitable
 
 
@@ -11,7 +12,15 @@ class AsyncDocument(Document):
     )
 
     async def async_save(self, *args, **kwargs):
-        return await create_awaitable(self.save, *args, **kwargs)
+        signal_kwargs = kwargs.pop("signal_kwargs", {})
+        await pre_save.send_async(
+            self.__class__, document=self, **signal_kwargs
+        )
+        result = await create_awaitable(self.save, *args, **kwargs)
+        await post_save.send_async(
+            self.__class__, document=self, **signal_kwargs
+        )
+        return result
 
     async def async_reload(self, *fields, **kwargs):
         return await create_awaitable(self.reload, *fields, **kwargs)
