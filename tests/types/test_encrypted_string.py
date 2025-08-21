@@ -1,12 +1,13 @@
 from functools import partial
-from typing import Generator
+from typing import Generator, cast
 from unittest.mock import patch
 
 import pytest
 from bson import Binary
 from mongoengine import Document, StringField
 from pymongo import MongoClient
-from pymongo.encryption import Algorithm, ClientEncryption, _EncryptionIO
+from pymongo.encryption import Algorithm, ClientEncryption
+from pymongo.synchronous.encryption import _EncryptionIO
 
 from mongoengine_plus.models import uuid_field
 from mongoengine_plus.types import EncryptedStringField
@@ -84,7 +85,7 @@ def test_create_data_key(
     data_key = db_connection[db_name][collection_name].find_one(
         ({"keyAltNames": key_name})
     )
-
+    data_key = cast(dict, data_key)
     assert data_key['keyAltNames'] == [key_name]
     assert type(data_key['keyMaterial']) is bytes
     assert data_key['masterKey'] == dict(
@@ -118,7 +119,7 @@ def test_encrypted_string_on_saving_and_reading(
         EncryptedStringField.key_namespace,
         client,
         CODEC_OPTION,
-    ) as client_encryption:
+    ) as client_encryption:  # type: ClientEncryption
         # The ClientEncryption object should be able to decrypt the encrypted
         # value stored in MongoDB
         assert client_encryption.decrypt(user_dict['ssn']) == user.ssn

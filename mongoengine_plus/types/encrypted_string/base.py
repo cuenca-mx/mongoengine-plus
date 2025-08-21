@@ -32,7 +32,7 @@ def get_data_key_binary(key_namespace: str, key_name: str) -> Binary:
     # Buscamos el data key
     data_key = get_data_key(key_namespace, key_name)
     uuid_data_key = data_key['_id']
-    return Binary(uuid_data_key.bytes, UUID_SUBTYPE)
+    return Binary(uuid_data_key, UUID_SUBTYPE)
 
 
 def create_data_key(
@@ -57,7 +57,7 @@ def create_data_key(
         key_namespace,
         connection,
         CodecOptions(uuid_representation=STANDARD),
-    ) as client_encryption:
+    ) as client_encryption:  # type: ClientEncryption
         client_encryption.create_data_key(
             'aws',
             key_alt_names=[key_name],

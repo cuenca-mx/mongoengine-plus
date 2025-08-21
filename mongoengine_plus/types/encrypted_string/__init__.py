@@ -3,7 +3,7 @@ __all__ = ['EncryptedStringField', 'cache_kms_data_key']
 import codecs
 
 import boto3
-from pymongo.encryption import _EncryptionIO
+from pymongo.synchronous.encryption import _EncryptionIO
 
 from .fields import EncryptedStringField
 
