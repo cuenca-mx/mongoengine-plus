@@ -1,6 +1,6 @@
 blinker==1.9.0
 dnspython==2.7.0
 mongoengine==0.29.1
-pymongo==3.13.0
+pymongo==4.11.0
 pymongocrypt==1.12.2
 boto3==1.35.95
