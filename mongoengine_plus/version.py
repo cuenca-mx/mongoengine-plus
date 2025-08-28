@@ -1,1 +1,1 @@
-__version__ = '1.2.0dev+upgradepymongo'
+__version__ = '1.2.0devupgradepymongo'
