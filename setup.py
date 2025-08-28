@@ -27,7 +27,7 @@ setup(
     install_requires=[
         'mongoengine>=0.29.1',
         'dnspython>=2.7.0',
-        'pymongo>=3.13.0,<4.0.0',
+        'pymongo==4.11.0',
         'pymongocrypt>=1.12.2,<2.0.0',
         'boto3>=1.34.106,<2.0.0',
         'blinker>=1.9.0,<2.0.0',
