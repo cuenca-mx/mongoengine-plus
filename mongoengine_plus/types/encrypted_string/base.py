@@ -2,7 +2,7 @@ from functools import lru_cache
 from typing import Dict
 
 from bson import CodecOptions
-from bson.binary import STANDARD, UUID_SUBTYPE, Binary
+from bson.binary import STANDARD, Binary
 from mongoengine import get_connection
 from pymongo.encryption import ClientEncryption
 
@@ -32,7 +32,7 @@ def get_data_key_binary(key_namespace: str, key_name: str) -> Binary:
     # Buscamos el data key
     data_key = get_data_key(key_namespace, key_name)
     uuid_data_key = data_key['_id']
-    return Binary(uuid_data_key.bytes, UUID_SUBTYPE)
+    return uuid_data_key
 
 
 def create_data_key(
@@ -52,6 +52,7 @@ def create_data_key(
         partialFilterExpression={"keyAltNames": {"$exists": True}},
     )
 
+    client_encryption: ClientEncryption
     with ClientEncryption(
         kms_provider,
         key_namespace,

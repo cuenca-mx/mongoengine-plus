@@ -8,7 +8,7 @@ from pymongo.encryption import Algorithm, ClientEncryption
 
 from .base import get_data_key_binary
 
-CODEC_OPTION = CodecOptions(uuid_representation=STANDARD)
+CODEC_OPTION: CodecOptions = CodecOptions(uuid_representation=STANDARD)
 
 
 class EncryptedStringField(BaseField):
@@ -57,6 +57,7 @@ class EncryptedStringField(BaseField):
 
         connection = get_connection()
 
+        client_encryption: ClientEncryption
         with ClientEncryption(
             self.kms_provider, self.key_namespace, connection, CODEC_OPTION
         ) as client_encryption:
@@ -66,6 +67,7 @@ class EncryptedStringField(BaseField):
         connection = get_connection()
         data_key = get_data_key_binary(self.key_namespace, self.key_name)
 
+        client_encryption: ClientEncryption
         with ClientEncryption(
             self.kms_provider, self.key_namespace, connection, CODEC_OPTION
         ) as client_encryption:
