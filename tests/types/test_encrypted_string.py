@@ -6,11 +6,8 @@ import pytest
 from bson import Binary
 from mongoengine import Document, StringField
 from pymongo import MongoClient
-from pymongo.synchronous.encryption import (
-    Algorithm,
-    ClientEncryption,
-    _EncryptionIO,
-)
+from pymongo.encryption import Algorithm, ClientEncryption
+from pymongo.synchronous.encryption import _EncryptionIO
 
 from mongoengine_plus.models import uuid_field
 from mongoengine_plus.types import EncryptedStringField
