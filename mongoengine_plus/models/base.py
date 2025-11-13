@@ -4,8 +4,8 @@ from .helpers import mongo_to_dict
 
 
 class BaseModel:
-    _excluded: ClassVar = []
-    _hidden: ClassVar = []
+    _excluded: ClassVar[list[str]] = []
+    _hidden: ClassVar[list[str]] = []
 
     def __init__(self, *args, **values):
         return super().__init__(*args, **values)
