@@ -1,4 +1,4 @@
-black==25.11.*
+black==25.12.*
 flake8==7.3.*
 isort==7.0.*
 moto[server,kms]==5.1.*
